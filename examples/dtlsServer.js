@@ -1,16 +1,30 @@
 const coap    = require('../') // or coap
 const path    = require('path');
 
-var SegfaultHandler = require('segfault-handler');
+function identityPskCallback(id) {
+  let psk = '';
 
-SegfaultHandler.registerHandler("crash.log"); // With no argument, SegfaultHandler will generate a generic log file name
+  switch (id.toString())  {
+    case 'foo':
+      psk = 'asdasdadasd';
+      break;
+    case '32323232-3232-3232-3232-323232323232':
+      psk = 'AAAAAAAAAAAAAAAA';
+      break;
+    default:
+      psk = '';
+      break;
+  }
+
+  return psk;
+}
 
 const dtls_opts = {
   key: path.join(__dirname, '../test/private.der'),
   debug: 1,
-  handshakeTimeoutMin: 3000
+  handshakeTimeoutMin: 3000,
+  identityPskCallback: identityPskCallback,
 };
-
 
 const server  = coap.createServer(
   {
@@ -20,7 +34,8 @@ const server  = coap.createServer(
 );
 
 server.on('request', function(req, res) {
-  console.log('request arrives:\n'+JSON.stringify(req));
+  var payload = JSON.parse(req.payload.toString());
+  console.log('method:'+req.method+' url:'+req.url+' payload:'+JSON.stringify(payload));
   res.end('Hello ' + req.url.split('/')[1] + '\n')
 })
 

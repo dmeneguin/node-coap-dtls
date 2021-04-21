@@ -1,10 +1,5 @@
 var coap = require('../index.js') // or coap
 
-
-var SegfaultHandler = require('segfault-handler');
-
-SegfaultHandler.registerHandler("crash.log"); // With no argument, SegfaultHandler will generate a generic log file name
-
 var dtls_opts = {
   psk:           new Buffer('AAAAAAAAAAAAAAAA'),
   PSKIdent:      new Buffer("32323232-3232-3232-3232-323232323232"),
@@ -12,12 +7,24 @@ var dtls_opts = {
   peerPublicKey: null
 };
 
-var req = coap.request('coaps://127.0.0.1:5684/oic/res',
+var url = {
+  protocol: 'coaps:',
+  hostname: '127.0.0.1',
+  port: '5684',
+  pathname: '/oic/res',
+  method: 'POST'
+}
+
+var req = coap.request( url,
                         dtls_opts,
                        (req) => {
                           req.on('response', function(res) {
                             res.pipe(process.stdout)
                           });
+                          var payload = {
+                            content: 'content of payload'
+                          }
+                          req.write(JSON.stringify(payload));
                           req.end();
                         }
                       );
