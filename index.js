@@ -67,7 +67,6 @@ module.exports.request = function(url, dtlsOpts, callback) {
 
     if (agent._sock) {
       var req =  agent.request(url);
-      req.end();
       callback(req);
       return req;
     }
